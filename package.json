@@ -2,7 +2,7 @@
   "name": "haxelow",
   "private": true,
   "version": "0.1.0",
-  "description": "A small, flat JSON database for Haxe.",
+  "description": "A small, flat JSON database library for Haxe.",
   "scripts": {
     "tests": "haxe haxelow.hxml && cd bin && node haxelow.js"
   },

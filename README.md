@@ -103,7 +103,7 @@ As mentioned, there is built-in support for Node.js (which requires the [steno](
 
 ## Installation
 
-Coming soon on haxelib...
+`haxelib install haxelow`, then put `-lib haxelow` in your `.hxml` file.
 
 ## Credits
 
