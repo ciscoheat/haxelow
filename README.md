@@ -36,7 +36,7 @@ class Main {
 }
 ```
 
-This is simple and useful, but if your class contains the field `var id : String` or `var _id : String` it gets better:
+This is nice and simple, but if your class contains the field `var id : String` or `var _id : String` it gets better:
 
 ```haxe
 class Person {
@@ -104,3 +104,9 @@ As mentioned, there is built-in support for Node.js (which requires the [steno](
 ## Installation
 
 Coming soon on haxelib...
+
+## Credits
+
+HaxeLow uses [TJSON](https://github.com/martamius/TJSON), the tolerant JSON parser for Haxe.
+
+Thanks to the lowdb authors for the idea.
