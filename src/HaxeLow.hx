@@ -44,7 +44,7 @@ class NodeJsDiskSync implements Disk {
 	}
 
 	public function writeFile(file : String, data : String) {
-		Lib.require('steno').writeFileSync(file, data, function(_) {});
+		Lib.require('steno').writeFileSync(file, data);
 	}
 }
 #end
@@ -85,12 +85,14 @@ class HaxeLow
 		this.disk = disk;
 		#end
 
-		if(file != null) {
-			this.checksum = this.disk.readFileSync(file);
+		if(this.file != null) {
+			if(this.disk == null) throw 'HaxeLow: no disk storage set.';
+
+			this.checksum = this.disk.readFileSync(this.file);
 			if(this.checksum != null) try {
 				this.db = TJSON.parse(checksum);
 			} catch(e : Dynamic) {
-				throw 'HaxeLow: JSON parsing failed: file "$file" is corrupt.';
+				throw 'HaxeLow: JSON parsing failed: file "${this.file}" is corrupt.';
 			}
 		}
 	}

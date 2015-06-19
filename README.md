@@ -99,7 +99,7 @@ class Main {
 }
 ```
 
-As mentioned, there is built-in support for Node.js (which requires the [steno](https://www.npmjs.com/package/steno) npm package) and for the browser, which uses [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+As mentioned, there is built-in support for Node.js (which requires the [steno](https://www.npmjs.com/package/steno) npm package) and for the browser, which uses [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). [Check the source](https://github.com/ciscoheat/haxelow/blob/master/src/HaxeLow.hx) for the implementations, it's not much code.
 
 ## Installation
 

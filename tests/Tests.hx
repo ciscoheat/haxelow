@@ -1,6 +1,5 @@
 
 import buddy.*;
-import js.node.Fs;
 using buddy.Should;
 
 class SomeObject {
@@ -17,6 +16,7 @@ class SomeObject {
 
 class Tests extends BuddySuite implements Buddy<[Tests]> {	
 	public function new() {
+		var fs : Dynamic = js.Lib.require('fs');
 		describe("HaxeLow", {
 			describe("The file database", {
 				var db : HaxeLow;
@@ -24,7 +24,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				var filename = 'test.json';
 
 				before({
-					if(Fs.existsSync(filename))	Fs.unlinkSync(filename);
+					if(fs.existsSync(filename))	fs.unlinkSync(filename);
 					db = new HaxeLow(filename);
 
 					o = new SomeObject();
@@ -38,10 +38,10 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				});
 
 				it("should write to the file when saved", function(done) {
-					Fs.existsSync(filename).should.be(false);
+					fs.existsSync(filename).should.be(false);
 					db.save().should.be(db);
 					haxe.Timer.delay(function() {
-						Fs.existsSync(filename).should.be(true);
+						fs.existsSync(filename).should.be(true);
 						done();
 					}, 250);
 				});
@@ -49,14 +49,14 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				it("should make a backup to a file when specified, still keeping the db object", function(done) {
 					var objects = db.col(SomeObject);
 					var backup = 'backup.json';
-					if(Fs.existsSync(backup)) Fs.unlinkSync(backup);
+					if(fs.existsSync(backup)) fs.unlinkSync(backup);
 					objects.push(o);
 
 					db.backup(backup).should.beType(String);
 					db.col(SomeObject).should.be(objects);
 
 					haxe.Timer.delay(function() {
-						Fs.existsSync(backup).should.be(true);
+						fs.existsSync(backup).should.be(true);
 						done();
 					}, 250);
 				});
@@ -68,7 +68,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					db.save();
 
 					haxe.Timer.delay(function() {
-						var saved = Fs.readFileSync(filename, {encoding: 'utf8'});
+						var saved = fs.readFileSync(filename, {encoding: 'utf8'});
 						~/\s/g.replace(saved, "").should.be(
 							'{"SomeObject":[{"_hxcls":"SomeObject","id":null,"name":"Name","array":[1,2,3],"internal":"internal"}]}'
 						);
