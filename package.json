@@ -1,0 +1,14 @@
+{
+  "name": "haxelow",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A small, flat JSON database for Haxe.",
+  "scripts": {
+    "tests": "haxe haxelow.hxml && cd bin && node haxelow.js"
+  },
+  "author": "ciscoheat",
+  "license": "MIT",
+  "dependencies": {
+    "steno": "^0.4.1"
+  }
+}

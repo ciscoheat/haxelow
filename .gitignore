@@ -1,0 +1,5 @@
+/bin/*.js
+/bin/*.map
+.vagrant
+node_modules
+*.sublime-workspace

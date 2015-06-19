@@ -1,0 +1,8 @@
+-lib buddy
+-lib tjson
+-D nodejs
+-cp src 
+-cp tests
+-debug
+-main Tests
+-js bin/haxelow.js 
