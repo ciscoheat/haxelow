@@ -75,6 +75,24 @@ class Main {
 
 If your id field is named `_id`, use the method `db._idCol(Person)` instead.
 
+## API reference
+
+`HaxeLow.uuid()` - Generates a v4 UUID where the first four bytes are the timestamp, so they can be sorted quite easily.
+
+`db.col<T>(cls : Class<T>)` - Returns an `Array<T>` for a class.
+
+`db.idCol<T>(cls : Class<T>)` - Returns an `Array<T>` with extra id methods, for classes with an `id : String` field.
+
+`db._idCol<T>(cls : Class<T>)` - Returns an `Array<T>` with extra id methods, for classes with an `_id : String` field.
+
+`db.backup(?file : String)` - Returns the DB as a JSON `String`. If `file` is specified, the DB is saved to that file.
+
+`db.restore(s : String)` - Restores the DB based on a JSON `String`, but as with other operations, does not save the DB automatically.
+
+`db.save()` - Saves the DB to disk.
+
+`db.file` - Filename for the current DB.
+
 ## Making it work on other targets than js
 
 The ways to store the DB varies a lot between platforms, so the only real solution is to let people implement their own disk storage. HaxeLow uses a simple interface for that, `HaxeLow.Disk`:

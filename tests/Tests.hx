@@ -60,6 +60,21 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 						done();
 					}, 250);
 				});
+				
+				it("should not save automatically after restore()", function() {
+					db = new HaxeLow(filename, new HaxeLow.NodeJsDiskSync());
+					db.col(SomeObject).push(o);
+					db.save();
+					
+					var saved : String = fs.readFileSync(filename, {encoding: 'utf8'});
+					var backupStr = '{"SomeObject":[]}';
+					
+					db.restore(backupStr);
+					var objAfterRestore = db.col(SomeObject);
+					
+					objAfterRestore.length.should.be(0);
+					fs.readFileSync(filename, {encoding: 'utf8'}).should.not.be(saved.length);
+				});
 
 				it("should save the db as JSON", function(done) {
 					var objects = db.col(SomeObject);
@@ -74,7 +89,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 						);
 						done();
 					}, 250);
-				});
+				});				
 			});
 
 			describe("The in-memory database", {

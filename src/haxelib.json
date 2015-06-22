@@ -1,11 +1,11 @@
 {
     "name": "haxelow",
     "url": "https://github.com/ciscoheat/haxelow",
-    "description": "A small, flat JSON database library for Haxe.",
+    "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "Initial version.",
+    "releasenote": "db.restore() does not save automatically now.",
     "contributors": ["ciscoheat"],
-    "version": "0.1.0",
+    "version": "0.2.0",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }

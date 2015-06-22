@@ -105,7 +105,6 @@ class HaxeLow
 	
 	public function restore(s : String) {
 		db = TJSON.parse(s); 
-		save(); 
 		return this; 
 	}
 
