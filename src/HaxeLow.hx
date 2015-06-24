@@ -192,7 +192,7 @@ abstract HaxeLowCollection<T : HaxeLowId>(Array<T>) from Array<T> to Array<T> {
 //////////////////////////////////////////////
 
 typedef HaxeLowdashId = {
-	public var _id : String;
+	public var _id(default, null) : String;
 }
 
 /* 

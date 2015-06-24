@@ -14,6 +14,12 @@ class SomeObject {
 	var internal : String;
 }
 
+class PublicId {
+	public function new() {}
+	public var _id : String;
+	public var name : String;
+}
+
 class Tests extends BuddySuite implements Buddy<[Tests]> {	
 	public function new() {
 		var fs : Dynamic = js.Lib.require('fs');
@@ -167,6 +173,25 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 						objects.idRemove(o.id);
 						objects.length.should.be(0);
 					});
+
+					it("should handle _id fields with _idCol()", {
+						var objects = db._idCol(PublicId);
+						var o = new PublicId();
+						objects.idInsert(o);
+						objects.idInsert(o);
+						objects.length.should.be(1);
+
+						objects.idGet(null).should.be(o);
+						o._id = "123";
+						objects.idGet("123").should.be(o);
+						
+						objects.idUpdate(o._id, {name: "Another name"});
+						o.name.should.be("Another name");
+
+						objects[0].should.be(o);
+						objects.idRemove(o._id);
+						objects.length.should.be(0);
+					});					
 				});
 			});
 		});
