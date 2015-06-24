@@ -3,9 +3,9 @@
     "url": "https://github.com/ciscoheat/haxelow",
     "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "Removed automatic ID update from idInsert(). Use HaxeLow.uuid() explicitly instead.",
+    "releasenote": "idInsert() now returns Bool.",
     "contributors": ["ciscoheat"],
-    "version": "0.3.0",
+    "version": "0.3.1",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }

@@ -161,13 +161,15 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					it("should use the id field of a class to enable convenient id handling", {
 						var objects = db.idCol(SomeObject);
 						o.id.should.match(~/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
-						objects.idInsert(o);
-						objects.idInsert(o);
+						objects.idInsert(o).should.be(true);
+						objects.idInsert(o).should.be(false);
 						objects.length.should.be(1);
 
 						objects.idGet(o.id).should.be(o);
-						objects.idUpdate(o.id, {name: "Another name"});
+						objects.idUpdate(o.id, { name: "Another name" } ).should.be(o);
 						o.name.should.be("Another name");
+						
+						objects.idUpdate("Not existing ID", {name: "Another name"}).should.be(null);
 
 						objects[0].should.be(o);
 						objects.idRemove(o.id);
@@ -177,8 +179,10 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					it("should handle _id fields with _idCol()", {
 						var objects = db._idCol(PublicId);
 						var o = new PublicId();
-						objects.idInsert(o);
-						objects.idInsert(o);
+						var o2 = new PublicId();
+						
+						objects.idInsert(o).should.be(true);
+						objects.idInsert(o).should.be(false);
 						objects.length.should.be(1);
 
 						objects.idGet(null).should.be(o);
@@ -187,9 +191,13 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 						
 						objects.idUpdate(o._id, {name: "Another name"});
 						o.name.should.be("Another name");
-
+						
+						o2._id = o._id;
+						objects.idInsert(o2).should.be(false);
+						objects.length.should.be(1);
 						objects[0].should.be(o);
-						objects.idRemove(o._id);
+
+						objects.idRemove(o2._id);
 						objects.length.should.be(0);
 					});					
 				});

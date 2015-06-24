@@ -59,10 +59,10 @@ class Main {
 
 		// And you have some useful 'id' methods on the collection
 		// (it still works as an array too)
-		var person = persons.idInsert(new Person("Test", "45"));
+		persons.idInsert(new Person("Test", 45)); // returns true
 		
-		// Inserting person with same id won't make a duplicate
-		persons.idInsert(person);
+		// Inserting person with same id will return false
+		persons.idInsert(person); // false
 
 		var id = person.id;
 

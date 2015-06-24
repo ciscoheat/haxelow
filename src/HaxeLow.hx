@@ -163,11 +163,13 @@ abstract HaxeLowCollection<T : HaxeLowId>(Array<T>) from Array<T> to Array<T> {
 		return this.find(function(o) return o.id == id);
 	}
 
-	public function idInsert(obj : T) : T {
-		if (idGet(obj.id) == null)
+	public function idInsert(obj : T) : Bool {
+		if (idGet(obj.id) == null) {
 			this.push(obj);
+			return true;
+		}
 			
-		return obj;
+		return false;
 	}
 
 	public function idUpdate(id : String, props : {}) : T {
@@ -212,11 +214,13 @@ abstract HaxeLowdashCollection<T : HaxeLowdashId>(Array<T>) from Array<T> to Arr
 		return this.find(function(o) return o._id == id);
 	}
 
-	public function idInsert(obj : T) : T {
-		if (idGet(obj._id) == null)
+	public function idInsert(obj : T) : Bool {
+		if (idGet(obj._id) == null) {
 			this.push(obj);
+			return true;
+		}
 			
-		return obj;
+		return false;
 	}
 
 	public function idUpdate(id : String, props : {}) : T {
