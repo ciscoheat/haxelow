@@ -7,7 +7,7 @@ class SomeObject {
 		internal = "internal";
 	}
 
-	public var id : String;
+	public var id(default, null) : String = HaxeLow.uuid();
 	public var name : String;
 	public var array : Array<Int>;
 
@@ -28,7 +28,6 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					db = new HaxeLow(filename);
 
 					o = new SomeObject();
-					o.id = null;
 					o.name = "Name";
 					o.array = [1,2,3];
 				});
@@ -78,6 +77,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 
 				it("should save the db as JSON", function(done) {
 					var objects = db.col(SomeObject);
+					untyped o.id = null; // Simplifies the test
 					objects.push(o);
 
 					db.save();
@@ -100,7 +100,6 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					db = new HaxeLow();
 
 					o = new SomeObject();
-					o.id = null;
 					o.name = "Name";
 					o.array = [1,2,3];
 				});
@@ -119,7 +118,6 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 
 					objects.push(o);
 					objects[0].should.be(o);
-					objects[0].id.should.be(null);
 					objects[0].name.should.be("Name");
 
 					var objects2 = db.col(SomeObject);
@@ -128,6 +126,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 
 				it("should backup the database to JSON when needed", {
 					var objects = db.col(SomeObject);
+					untyped o.id = null; // Simplifies the test
 					objects.push(o);
 
 					~/\s/g.replace(db.backup(), "").should.be(
@@ -155,25 +154,18 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				describe("Id-collections", {
 					it("should use the id field of a class to enable convenient id handling", {
 						var objects = db.idCol(SomeObject);
-						o.id = null;
+						o.id.should.match(~/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
 						objects.idInsert(o);
-						o.id.should.match(~/^[\w-]{36}$/);
+						objects.idInsert(o);
+						objects.length.should.be(1);
 
 						objects.idGet(o.id).should.be(o);
-
 						objects.idUpdate(o.id, {name: "Another name"});
 						o.name.should.be("Another name");
 
 						objects[0].should.be(o);
 						objects.idRemove(o.id);
 						objects.length.should.be(0);
-					});
-
-					it("should not overwrite the id field if it already exists", {
-						var objects = db.idCol(SomeObject);
-						o.id = "ABC";
-						objects.idInsert(o);
-						o.id.should.be("ABC");
 					});
 				});
 			});

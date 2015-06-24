@@ -23,7 +23,12 @@ class LocalStorageDisk implements Disk {
 }
 
 class NodeJsDisk implements Disk {
-	public function new() {}
+	var steno : Dynamic;
+	
+	public function new() {
+		this.steno = Lib.require('steno');
+		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
+	}
 
 	public function readFileSync(file : String) {
 		var fs = Lib.require('fs');
@@ -31,12 +36,17 @@ class NodeJsDisk implements Disk {
 	}
 
 	public function writeFile(file : String, data : String) {
-		Lib.require('steno').writeFile(file, data, function(_) {});
+		steno.writeFile(file, data, function(_) {});
 	}
 }
 
 class NodeJsDiskSync implements Disk {
-	public function new() {}
+	var steno : Dynamic;
+	
+	public function new() {
+		this.steno = Lib.require('steno');
+		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
+	}
 
 	public function readFileSync(file : String) {
 		var fs = Lib.require('fs');
@@ -44,7 +54,7 @@ class NodeJsDiskSync implements Disk {
 	}
 
 	public function writeFile(file : String, data : String) {
-		Lib.require('steno').writeFileSync(file, data);
+		steno.writeFileSync(file, data);
 	}
 }
 #end
@@ -140,7 +150,7 @@ class HaxeLow
 }
 
 typedef HaxeLowId = {
-	public var id : String;
+	public var id(default, null) : String;
 }
 
 @:forward
@@ -154,17 +164,9 @@ abstract HaxeLowCollection<T : HaxeLowId>(Array<T>) from Array<T> to Array<T> {
 	}
 
 	public function idInsert(obj : T) : T {
-		if(obj.id != null) {
-			var exists = idGet(obj.id);
-			if(exists != null) {
-				this[this.indexOf(exists)] = obj;
-				return obj;
-			}
-		} else {
-			obj.id = HaxeLow.uuid();
-		}
-
-		this.push(obj);
+		if (idGet(obj.id) == null)
+			this.push(obj);
+			
 		return obj;
 	}
 
@@ -187,11 +189,18 @@ abstract HaxeLowCollection<T : HaxeLowId>(Array<T>) from Array<T> to Array<T> {
 	}
 }
 
-///// Do not edit: Copy the above class and change only <T : HaxeLowId> to <T : HaxeLowdashId> /////
+//////////////////////////////////////////////
 
 typedef HaxeLowdashId = {
 	public var _id : String;
 }
+
+/* 
+Do not edit: Copy HaxeLowCollection and change 
+- HaxeLowCollection to HaxeLowdashCollection
+- HaxeLowId to HaxeLowdashId
+- id to _id
+*/
 
 @:forward
 abstract HaxeLowdashCollection<T : HaxeLowdashId>(Array<T>) from Array<T> to Array<T> {
@@ -204,17 +213,9 @@ abstract HaxeLowdashCollection<T : HaxeLowdashId>(Array<T>) from Array<T> to Arr
 	}
 
 	public function idInsert(obj : T) : T {
-		if(obj._id != null) {
-			var exists = idGet(obj._id);
-			if(exists != null) {
-				this[this.indexOf(exists)] = obj;
-				return obj;
-			}
-		} else {
-			obj._id = HaxeLow.uuid();		
-		}
-
-		this.push(obj);
+		if (idGet(obj._id) == null)
+			this.push(obj);
+			
 		return obj;
 	}
 

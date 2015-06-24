@@ -44,7 +44,8 @@ class Person {
 		this.name = name; this.age = age;
 	}
 
-	public var id : String;
+	// Easy way to generate a v4 UUID:
+	public var id(default, null) : String = HaxeLow.uuid();
 	public var name : String;
 	public var age : Int;
 }
@@ -59,8 +60,10 @@ class Main {
 		// And you have some useful 'id' methods on the collection
 		// (it still works as an array too)
 		var person = persons.idInsert(new Person("Test", "45"));
+		
+		// Inserting person with same id won't make a duplicate
+		persons.idInsert(person);
 
-		// A v4 UUID has been generated for the id
 		var id = person.id;
 
 		var samePerson = persons.idGet(id);
