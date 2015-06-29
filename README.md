@@ -1,6 +1,6 @@
 # HaxeLow
 
-A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database.
+A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database. It is tested to work when targeting javascript, but may work elsewhere too.
 
 ## How to use
 
@@ -76,7 +76,7 @@ class Main {
 }
 ```
 
-If your id field is named `_id`, use the method `db._idCol(Person)` instead, or you can use `db.keyCol(Person, idFieldName)` for any field.
+If your id field is named `_id`, use the method `db._idCol(Person)`, or you can use `db.keyCol(Person, idFieldName)` for any field.
 
 ## When to use HaxeLow
 
