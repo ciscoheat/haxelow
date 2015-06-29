@@ -36,7 +36,7 @@ class Main {
 }
 ```
 
-This is nice and simple, but if your class contains the field `var id : String` or `var _id : String` it gets better:
+This is nice and simple, but wait, there's more! You can use any field in your class as an ID field:
 
 ```haxe
 class Person {
@@ -54,7 +54,7 @@ class Main {
 	static function main() {
 		var db = new HaxeLow('db.json');
 
-		// Use idCol instead of col:
+		// If your id field is named id, use idCol instead of col:
 		var persons = db.idCol(Person);
 
 		// And you have some useful 'id' methods on the collection
@@ -76,11 +76,21 @@ class Main {
 }
 ```
 
-If your id field is named `_id`, use the method `db._idCol(Person)` instead.
+If your id field is named `_id`, use the method `db._idCol(Person)` instead, or you can use `db.keyCol(Person, idFieldName)` for any field.
+
+## When to use HaxeLow
+
+Straight from the lowdb docs:
+
+HaxeLow is a convenient method for storing data without setting up a database server. It's fast enough and safe to be used as an embedded database.
+
+However, if you need high performance and scalability more than simplicity, you should stick to databases like MongoDB.
 
 ## API reference
 
-`HaxeLow.uuid()` - Generates a v4 UUID where the first four bytes are the timestamp, so they can be sorted quite easily.
+`var db = new HaxeLow(?filename : String)` - Creates the HaxeLow database. If no filename is specified, an in-memory DB is created.
+
+`HaxeLow.uuid()` - Generates a v4 UUID where the first four bytes are the timestamp, so the generated id's can be sorted easily.
 
 `db.col<T>(cls : Class<T>)` - Returns an `Array<T>` for a class.
 
@@ -88,11 +98,13 @@ If your id field is named `_id`, use the method `db._idCol(Person)` instead.
 
 `db._idCol<T>(cls : Class<T>)` - Returns an `Array<T>` with extra id methods, for classes with an `_id : String` field.
 
+`db.keyCol<T>(cls : Class<T>, keyField : String)` - Returns an `Array<T>` with extra id methods, for any field that exists on a class.
+
 `db.backup(?file : String)` - Returns the DB as a JSON `String`. If `file` is specified, the DB is saved to that file.
 
 `db.restore(s : String)` - Restores the DB based on a JSON `String`, but as with other operations, does not save the DB automatically.
 
-`db.save()` - Saves the DB to disk.
+`db.save()` - Saves the DB to disk. (Does nothing for in-memory DB's)
 
 `db.file` - Filename for the current DB.
 
@@ -130,4 +142,4 @@ As mentioned, there is built-in support for Node.js (which requires the [steno](
 
 HaxeLow uses [TJSON](https://github.com/martamius/TJSON), the tolerant JSON parser for Haxe.
 
-Thanks to the lowdb authors for the idea.
+Thanks to the lowdb authors for the original idea!

@@ -22,12 +22,16 @@ class PublicId {
 
 class Tests extends BuddySuite implements Buddy<[Tests]> {	
 	public function new() {
+		#if js
 		var fs : Dynamic = js.Lib.require('fs');
+		#end
+		var db : HaxeLow;
+		var o : SomeObject;
+		var filename = 'test.json';
+		
 		describe("HaxeLow", {
+			#if js
 			describe("The file database", {
-				var db : HaxeLow;
-				var o : SomeObject;
-				var filename = 'test.json';
 
 				before({
 					if(fs.existsSync(filename))	fs.unlinkSync(filename);
@@ -97,11 +101,9 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					}, 250);
 				});				
 			});
+			#end
 
 			describe("The in-memory database", {
-				var db : HaxeLow;
-				var o : SomeObject;
-
 				before({
 					db = new HaxeLow();
 
@@ -156,51 +158,77 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					db.col(SomeObject).length.should.be(1);
 					objects2.should.not.be(objects);
 				});
+			});
 
-				describe("Id-collections", {
-					it("should use the id field of a class to enable convenient id handling", {
-						var objects = db.idCol(SomeObject);
-						o.id.should.match(~/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
-						objects.idInsert(o).should.be(true);
-						objects.idInsert(o).should.be(false);
-						objects.length.should.be(1);
+			describe("Id-collections", {
+				before({
+					db = new HaxeLow();
 
-						objects.idGet(o.id).should.be(o);
-						objects.idUpdate(o.id, { name: "Another name" } ).should.be(o);
-						o.name.should.be("Another name");
-						
-						objects.idUpdate("Not existing ID", {name: "Another name"}).should.be(null);
-
-						objects[0].should.be(o);
-						objects.idRemove(o.id);
-						objects.length.should.be(0);
-					});
-
-					it("should handle _id fields with _idCol()", {
-						var objects = db._idCol(PublicId);
-						var o = new PublicId();
-						var o2 = new PublicId();
-						
-						objects.idInsert(o).should.be(true);
-						objects.idInsert(o).should.be(false);
-						objects.length.should.be(1);
-
-						objects.idGet(null).should.be(o);
-						o._id = "123";
-						objects.idGet("123").should.be(o);
-						
-						objects.idUpdate(o._id, {name: "Another name"});
-						o.name.should.be("Another name");
-						
-						o2._id = o._id;
-						objects.idInsert(o2).should.be(false);
-						objects.length.should.be(1);
-						objects[0].should.be(o);
-
-						objects.idRemove(o2._id);
-						objects.length.should.be(0);
-					});					
+					o = new SomeObject();
+					o.name = "Name";
+					o.array = [1,2,3];
 				});
+				
+				it("should use the id field of a class to enable convenient id handling", {
+					var objects = db.idCol(SomeObject);
+					o.id.should.match(~/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
+					objects.idInsert(o).should.be(true);
+					objects.idInsert(o).should.be(false);
+					objects.length.should.be(1);
+
+					objects.idGet(o.id).should.be(o);
+					objects.idUpdate(o.id, { name: "Another name" } ).should.be(o);
+					o.name.should.be("Another name");
+					
+					objects.idUpdate("Not existing ID", {name: "Another name"}).should.be(null);
+
+					objects[0].should.be(o);
+					objects.idRemove(o.id);
+					objects.length.should.be(0);
+				});
+
+				it("should handle _id fields with _idCol()", {
+					var objects = db._idCol(PublicId);
+					var o = new PublicId();
+					var o2 = new PublicId();
+					
+					objects.idInsert(o).should.be(true);
+					objects.idInsert(o).should.be(false);
+					objects.length.should.be(1);
+
+					objects.idGet(null).should.be(o);
+					o._id = "123";
+					objects.idGet("123").should.be(o);
+					
+					objects.idUpdate(o._id, {name: "Another name"});
+					o.name.should.be("Another name");
+					
+					o2._id = o._id;
+					objects.idInsert(o2).should.be(false);
+					objects.length.should.be(1);
+					objects[0].should.be(o);
+
+					objects.idRemove(o2._id);
+					objects.length.should.be(0);
+				});
+
+				it("should handle arbitrary id fields with keyCol()", {
+					var objects = db.keyCol(SomeObject, 'name');					
+					
+					objects.idInsert(o).should.be(true);
+					objects.idInsert(o).should.be(false);
+					objects.length.should.be(1);
+
+					objects.idGet('Name').should.be(o);
+					o.name = "123";
+					objects.idGet("123").should.be(o);
+					
+					objects.idUpdate(o.name, {name: "Another name"});
+					o.name.should.be("Another name");
+					
+					objects.idRemove(o.name);
+					objects.length.should.be(0);
+				});				
 			});
 		});
 	}

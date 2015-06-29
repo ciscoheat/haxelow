@@ -3,9 +3,9 @@
     "url": "https://github.com/ciscoheat/haxelow",
     "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "idInsert() now returns Bool.",
+    "releasenote": "Now with support for arbitrary ID fields.",
     "contributors": ["ciscoheat"],
-    "version": "0.3.1",
+    "version": "0.4.0",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }

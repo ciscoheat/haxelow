@@ -130,7 +130,7 @@ class HaxeLow
 		return this;
 	}
 
-	public function col<T>(cls : Class<T>) : Array<T> {
+	public function col<T>(cls : Class<T>, keyField = null) : Array<T> {
 		var name = Type.getClassName(cls);
 		if(!Reflect.hasField(db, name)) {
 			Reflect.setField(db, name, new Array<T>());
@@ -140,12 +140,55 @@ class HaxeLow
 		return cast Reflect.field(db, name);
 	}
 
-	public function idCol<T : HaxeLowId>(cls : Class<T>) : HaxeLowCollection<T> {
-		return col(cls);
+	public function keyCol<T>(cls : Class<T>, keyField : String) : HaxeLowCollection<T> {
+		return new HaxeLowCollection(col(cls), keyField);
 	}
 
-	public function _idCol<T : HaxeLowdashId>(cls : Class<T>) : HaxeLowdashCollection<T> {
-		return col(cls);
+	public function idCol<T : HaxeLowId>(cls : Class<T>) : HaxeLowCollection<T> {
+		return keyCol(cls, 'id');
+	}
+
+	public function _idCol<T : HaxeLowDashId>(cls : Class<T>) : HaxeLowCollection<T> {
+		return keyCol(cls, '_id');
+	}
+}
+
+@:forward
+abstract HaxeLowCollection<T>(Array<T>) to Array<T> {
+	inline public function new(array : Array<T>, keyField : String) {		
+		this = array;
+		if(keyField != null) Reflect.setField(this, '__haxeLowId', keyField);
+	}
+
+	public function idGet(id : String) : T {
+		return this.find(function(o) return Reflect.field(o, Reflect.field(this, '__haxeLowId')) == id);
+	}
+
+	public function idInsert(obj : T) : Bool {
+		if (idGet(Reflect.field(obj, Reflect.field(this, '__haxeLowId'))) == null) {
+			this.push(obj);
+			return true;
+		}
+			
+		return false;
+	}
+
+	public function idUpdate(id : String, props : {}) : T {
+		var exists = idGet(id);
+		if(exists == null) return null;
+
+		for(field in Type.getInstanceFields(Type.getClass(exists))) 
+			if(Reflect.hasField(props, field))
+				Reflect.setProperty(exists, field, Reflect.field(props, field));
+
+		return exists;
+	}
+
+	public function idRemove(id : String) : T {
+		var exists = idGet(id);
+		if(exists == null) return null;
+		this.remove(exists);
+		return exists;
 	}
 }
 
@@ -153,91 +196,6 @@ typedef HaxeLowId = {
 	public var id(default, null) : String;
 }
 
-@:forward
-abstract HaxeLowCollection<T : HaxeLowId>(Array<T>) from Array<T> to Array<T> {
-	inline public function new(array : Array<T>) {
-		this = array;
-	}
-
-	public function idGet(id : String) : T {
-		return this.find(function(o) return o.id == id);
-	}
-
-	public function idInsert(obj : T) : Bool {
-		if (idGet(obj.id) == null) {
-			this.push(obj);
-			return true;
-		}
-			
-		return false;
-	}
-
-	public function idUpdate(id : String, props : {}) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-
-		for(field in Type.getInstanceFields(Type.getClass(exists))) 
-			if(Reflect.hasField(props, field))
-				Reflect.setProperty(exists, field, Reflect.field(props, field));
-
-		return exists;
-	}
-
-	public function idRemove(id : String) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-		this.remove(exists);
-		return exists;
-	}
-}
-
-//////////////////////////////////////////////
-
-typedef HaxeLowdashId = {
+typedef HaxeLowDashId = {
 	public var _id(default, null) : String;
-}
-
-/* 
-Do not edit: Copy HaxeLowCollection and change 
-- HaxeLowCollection to HaxeLowdashCollection
-- HaxeLowId to HaxeLowdashId
-- id to _id
-*/
-
-@:forward
-abstract HaxeLowdashCollection<T : HaxeLowdashId>(Array<T>) from Array<T> to Array<T> {
-	inline public function new(array : Array<T>) {
-		this = array;
-	}
-
-	public function idGet(id : String) : T {
-		return this.find(function(o) return o._id == id);
-	}
-
-	public function idInsert(obj : T) : Bool {
-		if (idGet(obj._id) == null) {
-			this.push(obj);
-			return true;
-		}
-			
-		return false;
-	}
-
-	public function idUpdate(id : String, props : {}) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-
-		for(field in Type.getInstanceFields(Type.getClass(exists))) 
-			if(Reflect.hasField(props, field))
-				Reflect.setProperty(exists, field, Reflect.field(props, field));
-
-		return exists;
-	}
-
-	public function idRemove(id : String) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-		this.remove(exists);
-		return exists;
-	}
 }
