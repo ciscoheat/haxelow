@@ -188,7 +188,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				});
 
 				it("should handle _id fields with _idCol()", {
-					var objects = db._idCol(PublicId);
+					var objects = db._idCol(PublicId, String);
 					var o = new PublicId();
 					var o2 = new PublicId();
 					
@@ -207,13 +207,21 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					objects.idInsert(o2).should.be(false);
 					objects.length.should.be(1);
 					objects[0].should.be(o);
+					
+					objects.idReplace(o2).should.be(true);
+					objects[0].should.be(o2);
+					objects.length.should.be(1);
+					
+					objects.idReplace(o2).should.be(false);
+					objects[0].should.be(o2);
+					objects.length.should.be(1);
 
 					objects.idRemove(o2._id);
 					objects.length.should.be(0);
 				});
 
 				it("should handle arbitrary id fields with keyCol()", {
-					var objects = db.keyCol(SomeObject, 'name');					
+					var objects = db.keyCol(SomeObject, 'name');
 					
 					objects.idInsert(o).should.be(true);
 					objects.idInsert(o).should.be(false);

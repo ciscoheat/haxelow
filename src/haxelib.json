@@ -3,9 +3,9 @@
     "url": "https://github.com/ciscoheat/haxelow",
     "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "Now with support for arbitrary ID fields.",
+    "releasenote": "Added idReplace() and optionally strongly typed key fields.",
     "contributors": ["ciscoheat"],
-    "version": "0.4.0",
+    "version": "0.5.0",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }

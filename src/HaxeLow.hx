@@ -102,7 +102,7 @@ class HaxeLow
 			if(this.checksum != null) try {
 				this.db = TJSON.parse(checksum);
 			} catch(e : Dynamic) {
-				throw 'HaxeLow: JSON parsing failed: file "${this.file}" is corrupt.';
+				throw 'HaxeLow: JSON parsing failed: file "${this.file}" is corrupt. ' + e;
 			}
 		}
 	}
@@ -130,7 +130,7 @@ class HaxeLow
 		return this;
 	}
 
-	public function col<T>(cls : Class<T>, keyField = null) : Array<T> {
+	public function col<T>(cls : Class<T>) : Array<T> {
 		var name = Type.getClassName(cls);
 		if(!Reflect.hasField(db, name)) {
 			Reflect.setField(db, name, new Array<T>());
@@ -140,32 +140,35 @@ class HaxeLow
 		return cast Reflect.field(db, name);
 	}
 
-	public function keyCol<T>(cls : Class<T>, keyField : String) : HaxeLowCollection<T> {
-		return new HaxeLowCollection(col(cls), keyField);
-	}
+	public function keyCol<T, K>(cls : Class<T>, keyField : String, ?keyType : Class<K>) : HaxeLowCol<T, K>
+		return new HaxeLowCol(col(cls), keyField);
 
-	public function idCol<T : HaxeLowId>(cls : Class<T>) : HaxeLowCollection<T> {
-		return keyCol(cls, 'id');
-	}
+	public function idCol<T : HaxeLowId<K>, K>(cls : Class<T>, ?keyType : Class<K>) : HaxeLowCol<T, K>
+		return keyCol(cls, 'id', keyType);
 
-	public function _idCol<T : HaxeLowDashId>(cls : Class<T>) : HaxeLowCollection<T> {
-		return keyCol(cls, '_id');
-	}
+	public function _idCol<T : HaxeLowDashId<K>, K>(cls : Class<T>, ?keyType : Class<K>) : HaxeLowCol<T, K>
+		return keyCol(cls, '_id', keyType);
 }
 
+typedef HaxeLowIntCol<T> = HaxeLowCol<T, Int>;
+typedef HaxeLowStringCol<T> = HaxeLowCol<T, String>;
+
 @:forward
-abstract HaxeLowCollection<T>(Array<T>) to Array<T> {
+abstract HaxeLowCol<T, K>(Array<T>) to Array<T> {
 	inline public function new(array : Array<T>, keyField : String) {		
 		this = array;
 		if(keyField != null) Reflect.setField(this, '__haxeLowId', keyField);
 	}
 
-	public function idGet(id : String) : T {
-		return this.find(function(o) return Reflect.field(o, Reflect.field(this, '__haxeLowId')) == id);
+	public function idGet(id : K) : T {
+		return this.find(function(o) return keyValue(o) == id);
 	}
 
+	/**
+	 * Returns true if the object was inserted, false if not.
+	 */
 	public function idInsert(obj : T) : Bool {
-		if (idGet(Reflect.field(obj, Reflect.field(this, '__haxeLowId'))) == null) {
+		if (idGet(keyValue(obj)) == null) {
 			this.push(obj);
 			return true;
 		}
@@ -173,7 +176,7 @@ abstract HaxeLowCollection<T>(Array<T>) to Array<T> {
 		return false;
 	}
 
-	public function idUpdate(id : String, props : {}) : T {
+	public function idUpdate(id : K, props : {}) : T {
 		var exists = idGet(id);
 		if(exists == null) return null;
 
@@ -184,18 +187,34 @@ abstract HaxeLowCollection<T>(Array<T>) to Array<T> {
 		return exists;
 	}
 
-	public function idRemove(id : String) : T {
+	/**
+	 * Returns true if the object replaced another, false if it was inserted or existed already.
+	 */
+	public function idReplace(obj : T) : Bool {
+		var exists = idGet(keyValue(obj));
+		if (exists != null) {
+			if (exists == obj) return false;
+			this.remove(exists);
+		}
+		
+		this.push(obj);
+		return exists != null;
+	}
+	
+	public function idRemove(id : K) : T {
 		var exists = idGet(id);
 		if(exists == null) return null;
 		this.remove(exists);
 		return exists;
 	}
+	
+	inline function keyValue<T>(obj : T) return Reflect.field(obj, Reflect.field(this, '__haxeLowId'));
 }
 
-typedef HaxeLowId = {
-	public var id(default, null) : String;
+typedef HaxeLowId<K> = {
+	public var id(default, null) : K;
 }
 
-typedef HaxeLowDashId = {
-	public var _id(default, null) : String;
+typedef HaxeLowDashId<K> = {
+	public var _id(default, null) : K;
 }

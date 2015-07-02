@@ -45,7 +45,7 @@ class Person {
 	}
 
 	// Easy way to generate a v4 UUID:
-	public var id(default, null) : String = HaxeLow.uuid();
+	public var id : String = HaxeLow.uuid();
 	public var name : String;
 	public var age : Int;
 }
@@ -63,14 +63,18 @@ class Main {
 		
 		// Inserting person with same id will return false
 		persons.idInsert(person); // false
-
+		
 		var id = person.id;
 
 		var samePerson = persons.idGet(id);
-		persons.idUpdate(id, { age: 46 });
-		var stillSame = persons.idRemove(id);
+		samePerson.idUpdate(id, { age: 46 });
 
-		// Remember to save! (empty db in this case)
+		// idReplace will replace if same id, insert otherwise
+		var anotherPerson = new Person("Test2", 40);
+		anotherPerson.id = person.id;
+		persons.idReplace(anotherPerson); // true
+		
+		// Remember to save!
 		db.save();
 	}
 }
@@ -94,11 +98,11 @@ However, if you need high performance and scalability more than simplicity, you 
 
 `db.col<T>(cls : Class<T>)` - Returns an `Array<T>` for a class.
 
-`db.idCol<T>(cls : Class<T>)` - Returns an `Array<T>` with extra id methods, for classes with an `id : String` field.
+`db.idCol<T, K>(cls : Class<T>, ?keyType : Class<K>)` - Returns an `Array<T>` with extra id methods, for classes with an `id : K` field.
 
-`db._idCol<T>(cls : Class<T>)` - Returns an `Array<T>` with extra id methods, for classes with an `_id : String` field.
+`db._idCol<T, K>(cls : Class<T>, ?keyType : Class<K>)` - Returns an `Array<T>` with extra id methods, for classes with an `_id : K` field.
 
-`db.keyCol<T>(cls : Class<T>, keyField : String)` - Returns an `Array<T>` with extra id methods, for any field that exists on a class.
+`db.keyCol<T, K>(cls : Class<T>, keyField : String, ?keyType : Class<K>)` - Returns an `Array<T>` with extra id methods, for any `keyField : K` that exists on a class.
 
 `db.backup(?file : String)` - Returns the DB as a JSON `String`. If `file` is specified, the DB is saved to that file.
 
