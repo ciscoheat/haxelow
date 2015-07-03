@@ -6,13 +6,13 @@ import js.Lib;
 
 using Lambda;
 
-interface Disk {
+interface HaxeLowDisk {
 	public function readFileSync(file : String) : String;
 	public function writeFile(file : String, data : String) : Void;
 }
 
 #if js
-class LocalStorageDisk implements Disk {
+class LocalStorageDisk implements HaxeLowDisk {
 	public function new() {}
 
 	public function readFileSync(file : String) 
@@ -22,7 +22,7 @@ class LocalStorageDisk implements Disk {
 		js.Browser.getLocalStorage().setItem(file, data);
 }
 
-class NodeJsDisk implements Disk {
+class NodeJsDisk implements HaxeLowDisk {
 	var steno : Dynamic;
 	
 	public function new() {
@@ -40,7 +40,7 @@ class NodeJsDisk implements Disk {
 	}
 }
 
-class NodeJsDiskSync implements Disk {
+class NodeJsDiskSync implements HaxeLowDisk {
 	var steno : Dynamic;
 	
 	public function new() {
@@ -58,6 +58,8 @@ class NodeJsDiskSync implements Disk {
 	}
 }
 #end
+
+//////////////////////////////////////////////////////////////////////////
 
 // Based on https://github.com/typicode/lowdb
 class HaxeLow
@@ -79,9 +81,9 @@ class HaxeLow
 
 	var db : Dynamic;
 	var checksum : String;
-	var disk : Disk;
+	var disk : HaxeLowDisk;
 
-	public function new(?file : String, ?disk : Disk) {
+	public function new(?file : String, ?disk : HaxeLowDisk) {
 		this.file = file;
 		this.db = {};
 
@@ -150,71 +152,5 @@ class HaxeLow
 		return keyCol(cls, '_id', keyType);
 }
 
-typedef HaxeLowIntCol<T> = HaxeLowCol<T, Int>;
-typedef HaxeLowStringCol<T> = HaxeLowCol<T, String>;
-
-@:forward
-abstract HaxeLowCol<T, K>(Array<T>) to Array<T> {
-	inline public function new(array : Array<T>, keyField : String) {		
-		this = array;
-		if(keyField != null) Reflect.setField(this, '__haxeLowId', keyField);
-	}
-
-	public function idGet(id : K) : T {
-		return this.find(function(o) return keyValue(o) == id);
-	}
-
-	/**
-	 * Returns true if the object was inserted, false if not.
-	 */
-	public function idInsert(obj : T) : Bool {
-		if (idGet(keyValue(obj)) == null) {
-			this.push(obj);
-			return true;
-		}
-			
-		return false;
-	}
-
-	public function idUpdate(id : K, props : {}) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-
-		for(field in Type.getInstanceFields(Type.getClass(exists))) 
-			if(Reflect.hasField(props, field))
-				Reflect.setProperty(exists, field, Reflect.field(props, field));
-
-		return exists;
-	}
-
-	/**
-	 * Returns true if the object replaced another, false if it was inserted or existed already.
-	 */
-	public function idReplace(obj : T) : Bool {
-		var exists = idGet(keyValue(obj));
-		if (exists != null) {
-			if (exists == obj) return false;
-			this.remove(exists);
-		}
-		
-		this.push(obj);
-		return exists != null;
-	}
-	
-	public function idRemove(id : K) : T {
-		var exists = idGet(id);
-		if(exists == null) return null;
-		this.remove(exists);
-		return exists;
-	}
-	
-	inline function keyValue<T>(obj : T) return Reflect.field(obj, Reflect.field(this, '__haxeLowId'));
-}
-
-typedef HaxeLowId<K> = {
-	public var id(default, null) : K;
-}
-
-typedef HaxeLowDashId<K> = {
-	public var _id(default, null) : K;
-}
+typedef HaxeLowId<K> = { public var id(default, null) : K; }
+typedef HaxeLowDashId<K> = { public var _id(default, null) : K; }

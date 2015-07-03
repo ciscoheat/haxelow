@@ -1,6 +1,6 @@
 # HaxeLow
 
-A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database. It is tested to work when targeting javascript, but may work elsewhere too.
+A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database. It is tested to work when targeting javascript, Node.js or browser.
 
 ## How to use
 
@@ -86,7 +86,7 @@ If your id field is named `_id`, use the method `db._idCol(Person)`, or you can 
 
 Straight from the lowdb docs:
 
-HaxeLow is a convenient method for storing data without setting up a database server. It's fast enough and safe to be used as an embedded database.
+HaxeLow/lowdb is a convenient method for storing data without setting up a database server. It's fast enough and safe to be used as an embedded database.
 
 However, if you need high performance and scalability more than simplicity, you should stick to databases like MongoDB.
 
@@ -114,10 +114,10 @@ However, if you need high performance and scalability more than simplicity, you 
 
 ## Making it work on other targets than js
 
-The ways to store the DB varies a lot between platforms, so the only real solution is to let people implement their own disk storage. HaxeLow uses a simple interface for that, `HaxeLow.Disk`:
+The ways to store the DB varies a lot between platforms, so the only real solution is to let people implement their own disk storage. HaxeLow uses a simple interface for that, `HaxeLow.HaxeLowDisk`:
 
 ```haxe
-interface Disk {
+interface HaxeLowDisk {
 	// Read a file synchronously and return its contents.
 	public function readFileSync(file : String) : String;
 
