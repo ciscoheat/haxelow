@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "A small, flat JSON database library for Haxe.",
   "scripts": {
-    "tests": "haxe haxelow.hxml && cd bin && node haxelow.js"
+    "tests": "haxe build-nodejs.hxml && cd bin && node haxelow.js"
   },
   "author": "ciscoheat",
   "license": "MIT",

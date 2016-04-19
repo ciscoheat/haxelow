@@ -33,7 +33,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 			#if js
 			describe("The file database", {
 
-				before({
+				beforeEach({
 					if(fs.existsSync(filename))	fs.unlinkSync(filename);
 					db = new HaxeLow(filename);
 
@@ -104,7 +104,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 			#end
 
 			describe("The in-memory database", {
-				before({
+				beforeEach({
 					db = new HaxeLow();
 
 					o = new SomeObject();
@@ -161,7 +161,7 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 			});
 
 			describe("Id-collections", {
-				before({
+				beforeEach({
 					db = new HaxeLow();
 
 					o = new SomeObject();
