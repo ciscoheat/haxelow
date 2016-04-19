@@ -24,32 +24,34 @@ class LocalStorageDisk implements HaxeLowDisk {
 
 class NodeJsDisk implements HaxeLowDisk {
 	var steno : Dynamic;
+	var fs : Dynamic;
 	
 	public function new() {
 		this.steno = Lib.require('steno');
+		this.fs = Lib.require('steno/node_modules/graceful-fs');
 		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
 	}
 
 	public function readFileSync(file : String) {
-		var fs = Lib.require('fs');
 		return fs.existsSync(file) ? fs.readFileSync(file, {encoding: 'utf8'}) : null;
 	}
 
 	public function writeFile(file : String, data : String) {
-		steno.writeFile(file, data, function(_) {});
+		steno.writeFile(file, data, function(err) if(err) throw err);
 	}
 }
 
 class NodeJsDiskSync implements HaxeLowDisk {
 	var steno : Dynamic;
+	var fs : Dynamic;
 	
 	public function new() {
 		this.steno = Lib.require('steno');
+		this.fs = Lib.require('steno/node_modules/graceful-fs');
 		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
 	}
 
 	public function readFileSync(file : String) {
-		var fs = Lib.require('fs');
 		return fs.existsSync(file) ? fs.readFileSync(file, {encoding: 'utf8'}) : null;
 	}
 
@@ -66,15 +68,15 @@ class HaxeLow
 {
 	public static function uuid() {
 		// Based on https://gist.github.com/LeverOne/1308368
-	    var uid = new StringBuf(), a = 8;
-        uid.add(StringTools.hex(Std.int(Date.now().getTime()), 8));
-	    while((a++) < 36) {
-	        uid.add(a*51 & 52 != 0
-	            ? StringTools.hex(a^15 != 0 ? 8^Std.int(Math.random() * (a^20 != 0 ? 16 : 4)) : 4)
-	            : "-"
-	        );
-	    }
-	    return uid.toString().toLowerCase();
+		var uid = new StringBuf(), a = 8;
+		uid.add(StringTools.hex(Std.int(Date.now().getTime()), 8));
+		while((a++) < 36) {
+			uid.add(a*51 & 52 != 0
+				? StringTools.hex(a^15 != 0 ? 8^Std.int(Math.random() * (a^20 != 0 ? 16 : 4)) : 4)
+				: "-"
+			);
+		}
+		return uid.toString().toLowerCase();
 	}
 
 	public var file(default, null) : String;
@@ -101,11 +103,7 @@ class HaxeLow
 			if(this.disk == null) throw 'HaxeLow: no disk storage set.';
 
 			this.checksum = this.disk.readFileSync(this.file);
-			if(this.checksum != null) try {
-				this.db = TJSON.parse(checksum);
-			} catch(e : Dynamic) {
-				throw 'HaxeLow: JSON parsing failed: file "${this.file}" is corrupt. ' + e;
-			}
+			if (this.checksum != null) this.restore(checksum);
 		}
 	}
 
@@ -116,7 +114,15 @@ class HaxeLow
 	}
 	
 	public function restore(s : String) {
-		db = TJSON.parse(s); 
+		try {			
+			db = TJSON.parse(s);
+			// Clear checksum so the DB currently in memory 
+			// will be saved on next save() call
+			checksum = null;
+		} catch(e : Dynamic) {
+			throw 'HaxeLow: JSON parsing failed: file "${this.file}" is corrupt. ' + e;
+		}
+
 		return this; 
 	}
 
@@ -124,8 +130,8 @@ class HaxeLow
 		if(file == null) return this;
 
 		var data = backup();
-		if(data == checksum) return this;
-
+		if (data == checksum) return this;
+		
 		checksum = data;
 		disk.writeFile(file, data);
 

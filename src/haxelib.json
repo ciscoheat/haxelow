@@ -3,9 +3,9 @@
     "url": "https://github.com/ciscoheat/haxelow",
     "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "Moved some types to their own module. Renamed Disk to HaxeLowDisk.",
+    "releasenote": "File system and checksum fixes.",
     "contributors": ["ciscoheat"],
-    "version": "0.6.0",
+    "version": "0.6.1",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }
