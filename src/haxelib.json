@@ -3,9 +3,9 @@
     "url": "https://github.com/ciscoheat/haxelow",
     "description": "A small, flat JSON database library.",
     "license": "MIT",
-    "releasenote": "File system and checksum fixes.",
+    "releasenote": "Sys platform support.",
     "contributors": ["ciscoheat"],
-    "version": "0.6.1",
+    "version": "0.7.0",
     "tags": ["db", "json"],
     "dependencies": { "tjson": "" }
 }

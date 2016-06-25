@@ -1,8 +1,9 @@
--lib hxnodejs
 -lib buddy
 -lib tjson
 -cp src 
 -cp tests
 -debug
 -main Tests
--js bin/haxelow.js 
+-neko bin/haxelow.n
+-cmd cd bin
+-cmd neko haxelow.n

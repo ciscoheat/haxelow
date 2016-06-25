@@ -9,6 +9,7 @@
   "author": "ciscoheat",
   "license": "MIT",
   "dependencies": {
-    "steno": "^0.4.1"
+    "steno": "^0.4.4",
+    "graceful-fs": "^4.1.4"
   }
 }

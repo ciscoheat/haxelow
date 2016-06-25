@@ -1,5 +1,6 @@
-
-import buddy.*;
+import buddy.SingleSuite;
+import sys.FileSystem;
+import sys.io.File;
 using buddy.Should;
 
 class SomeObject {
@@ -20,21 +21,17 @@ class PublicId {
 	public var name : String;
 }
 
-class Tests extends BuddySuite implements Buddy<[Tests]> {	
+class Tests extends SingleSuite {
 	public function new() {
-		#if js
-		var fs : Dynamic = js.Lib.require('fs');
-		#end
 		var db : HaxeLow;
 		var o : SomeObject;
 		var filename = 'test.json';
 		
 		describe("HaxeLow", {
-			#if js
 			describe("The file database", {
 
 				beforeEach({
-					if(fs.existsSync(filename))	fs.unlinkSync(filename);
+					if(FileSystem.exists(filename))	FileSystem.deleteFile(filename);
 					db = new HaxeLow(filename);
 
 					o = new SomeObject();
@@ -47,42 +44,59 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 				});
 
 				it("should write to the file when saved", function(done) {
-					fs.existsSync(filename).should.be(false);
+					FileSystem.exists(filename).should.be(false);
 					db.save().should.be(db);
-					haxe.Timer.delay(function() {
-						fs.existsSync(filename).should.be(true);
+					
+					var testExist = function() {
+						FileSystem.exists(filename).should.be(true);
 						done();
-					}, 250);
+					}
+
+					#if js
+					haxe.Timer.delay(testExist, 250);
+					#else
+					testExist();
+					#end
 				});
 
 				it("should make a backup to a file when specified, still keeping the db object", function(done) {
 					var objects = db.col(SomeObject);
 					var backup = 'backup.json';
-					if(fs.existsSync(backup)) fs.unlinkSync(backup);
+					if(FileSystem.exists(backup)) FileSystem.deleteFile(backup);
 					objects.push(o);
 
 					db.backup(backup).should.beType(String);
 					db.col(SomeObject).should.be(objects);
 
-					haxe.Timer.delay(function() {
-						fs.existsSync(backup).should.be(true);
+					var testExist = function() {
+						FileSystem.exists(backup).should.be(true);
 						done();
-					}, 250);
+					}
+					
+					#if js
+					haxe.Timer.delay(testExist, 250);
+					#else
+					testExist();
+					#end
 				});
 				
 				it("should not save automatically after restore()", function() {
+					#if js
 					db = new HaxeLow(filename, new HaxeLow.NodeJsDiskSync());
+					#else
+					db = new HaxeLow(filename, new HaxeLow.SysDisk());
+					#end
 					db.col(SomeObject).push(o);
 					db.save();
 					
-					var saved : String = fs.readFileSync(filename, {encoding: 'utf8'});
+					var saved : String = File.getContent(filename);
 					var backupStr = '{"SomeObject":[]}';
 					
 					db.restore(backupStr);
 					var objAfterRestore = db.col(SomeObject);
 					
 					objAfterRestore.length.should.be(0);
-					fs.readFileSync(filename, {encoding: 'utf8'}).should.not.be(saved.length);
+					File.getContent(filename).should.be(saved);
 				});
 
 				it("should save the db as JSON", function(done) {
@@ -91,17 +105,22 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					objects.push(o);
 
 					db.save();
-
-					haxe.Timer.delay(function() {
-						var saved = fs.readFileSync(filename, {encoding: 'utf8'});
-						~/\s/g.replace(saved, "").should.be(
-							'{"SomeObject":[{"_hxcls":"SomeObject","id":null,"name":"Name","array":[1,2,3],"internal":"internal"}]}'
+					
+					function testSave() {
+						var saved = File.getContent(filename);
+						~/\s/g.replace(saved, "").should.match(
+							~/^\{"SomeObject":\[\{.*"_hxcls":"SomeObject".*\}\]\}$/
 						);
 						done();
-					}, 250);
-				});				
+					}
+
+					#if js
+					haxe.Timer.delay(testSave, 250);
+					#else
+					testSave();
+					#end
+				});
 			});
-			#end
 
 			describe("The in-memory database", {
 				beforeEach({
@@ -137,8 +156,8 @@ class Tests extends BuddySuite implements Buddy<[Tests]> {
 					untyped o.id = null; // Simplifies the test
 					objects.push(o);
 
-					~/\s/g.replace(db.backup(), "").should.be(
-						'{"SomeObject":[{"_hxcls":"SomeObject","id":null,"name":"Name","array":[1,2,3],"internal":"internal"}]}'
+					~/\s/g.replace(db.backup(), "").should.match(
+						~/^\{"SomeObject":\[\{.*"_hxcls":"SomeObject".*\}\]\}$/
 					);
 				});
 

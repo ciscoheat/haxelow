@@ -1,9 +1,5 @@
 import tjson.TJSON;
 
-#if js
-import js.Lib;
-#end
-
 using Lambda;
 
 interface HaxeLowDisk {
@@ -11,7 +7,7 @@ interface HaxeLowDisk {
 	public function writeFile(file : String, data : String) : Void;
 }
 
-#if js
+#if (js && !nodejs)
 class LocalStorageDisk implements HaxeLowDisk {
 	public function new() {}
 
@@ -21,14 +17,16 @@ class LocalStorageDisk implements HaxeLowDisk {
 	public function writeFile(file : String, data : String)
 		js.Browser.getLocalStorage().setItem(file, data);
 }
+#end
 
+#if nodejs
 class NodeJsDisk implements HaxeLowDisk {
 	var steno : Dynamic;
 	var fs : Dynamic;
 	
 	public function new() {
-		this.steno = Lib.require('steno');
-		this.fs = Lib.require('steno/node_modules/graceful-fs');
+		this.steno = js.Lib.require('steno');
+		this.fs = js.Lib.require('graceful-fs');
 		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
 	}
 
@@ -46,8 +44,8 @@ class NodeJsDiskSync implements HaxeLowDisk {
 	var fs : Dynamic;
 	
 	public function new() {
-		this.steno = Lib.require('steno');
-		this.fs = Lib.require('steno/node_modules/graceful-fs');
+		this.steno = js.Lib.require('steno');
+		this.fs = js.Lib.require('graceful-fs');
 		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
 	}
 
@@ -57,6 +55,20 @@ class NodeJsDiskSync implements HaxeLowDisk {
 
 	public function writeFile(file : String, data : String) {
 		steno.writeFileSync(file, data);
+	}
+}
+#end
+
+#if (sys || nodejs)
+class SysDisk implements HaxeLowDisk {
+	public function new() {}
+	
+	public function readFileSync(file : String) {
+		return sys.FileSystem.exists(file) ? sys.io.File.getContent(file) : null;
+	}
+	
+	public function writeFile(file : String, data : String) {
+		sys.io.File.saveContent(file, data);
 	}
 }
 #end
@@ -87,18 +99,20 @@ class HaxeLow
 
 	public function new(?file : String, ?disk : HaxeLowDisk) {
 		this.file = file;
-		this.db = {};
-
-		#if js
-		// Node.js detection from http://stackoverflow.com/a/5197219/70894
-		var isNode = untyped __js__("typeof module !== 'undefined' && module.exports");
-		this.disk = (disk == null && file != null) 
-			? (isNode ? new NodeJsDisk() : new LocalStorageDisk())
-			: disk;
-		#else
 		this.disk = disk;
-		#end
-
+		this.db = {};
+		
+		if (disk == null && file != null) {
+			this.disk =
+			#if (js && !nodejs)
+			new LocalStorageDisk();
+			#elseif nodejs
+			new NodeJsDisk();
+			#else
+			new SysDisk();
+			#end
+		}
+		
 		if(this.file != null) {
 			if(this.disk == null) throw 'HaxeLow: no disk storage set.';
 

@@ -1,10 +1,16 @@
 # HaxeLow
 
-A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database. It is tested to work when targeting javascript, Node.js or browser.
+A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON file database.
 
 ## How to use
 
-If you're on Node.js or in the browser, you can use HaxeLow straight out-of-the-box:
+`haxelib install haxelow`, then put `-lib haxelow` in your `.hxml` file.
+
+**For Node.js:** Define `-D nodejs` or use `-lib [hxnodejs](http://lib.haxe.org/p/hxnodejs/)`. The npm packages `steno` and `graceful-fs` are required.
+
+**In the browser, or for `Sys` targets:** It works straight out-of-the-box.
+
+## Example
 
 ```haxe
 class Person {
@@ -136,14 +142,8 @@ class Main {
 }
 ```
 
-As mentioned, there is built-in support for Node.js (which requires the [steno](https://www.npmjs.com/package/steno) npm package) and for the browser, which uses [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). [Check the source](https://github.com/ciscoheat/haxelow/blob/master/src/HaxeLow.hx) for the implementations, it's not much code.
-
-## Installation
-
-`haxelib install haxelow`, then put `-lib haxelow` in your `.hxml` file.
-
 ## Credits
 
 HaxeLow uses [TJSON](https://github.com/martamius/TJSON), the tolerant JSON parser for Haxe.
 
-Thanks to the lowdb authors for the original idea!
+Thanks to the lowdb authors for the idea!

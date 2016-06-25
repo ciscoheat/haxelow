@@ -20,7 +20,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="nodejs" />
+    <option directives="" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="Tests" />
@@ -29,6 +29,7 @@
   </build>
   <!-- haxelib libraries -->
   <haxelib>
+    <library name="hxnodejs" />
     <library name="buddy" />
     <library name="tjson" />
   </haxelib>
