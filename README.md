@@ -6,7 +6,7 @@ A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON f
 
 `haxelib install haxelow`, then put `-lib haxelow` in your `.hxml` file.
 
-**For Node.js:** Define `-D nodejs` or use `-lib [hxnodejs](http://lib.haxe.org/p/hxnodejs/)`. The npm packages `steno` and `graceful-fs` are required.
+**For Node.js:** Define `-D nodejs` or use `-lib hxnodejs`. The npm packages `steno` and `graceful-fs` are required.
 
 **In the browser, or for `Sys` targets:** It works straight out-of-the-box.
 
