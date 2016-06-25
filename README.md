@@ -14,12 +14,12 @@ A Haxe port of [lowdb](https://github.com/typicode/lowdb) which is a flat JSON f
 
 ```haxe
 class Person {
-	public function new(name, age) {
-		this.name = name; this.age = age;
+	public function new(name, birth) {
+		this.name = name; this.birth = birth;
 	}
 
 	public var name : String;
-	public var age : Int;
+	public var birth : Int;
 }
 
 class Main {
@@ -32,7 +32,7 @@ class Main {
 
 		// persons is now an Array<Person>
 		// that can be manipulated as you like
-		persons.push(new Person("Test", 50));
+		persons.push(new Person("Test", 1977));
 
 		// Save all collections to disk.
 		// This is the only way to save, no automatic saving
@@ -46,14 +46,14 @@ This is nice and simple, but wait, there's more! You can use any field in your c
 
 ```haxe
 class Person {
-	public function new(name, age) {
-		this.name = name; this.age = age;
+	public function new(name, birth) {
+		this.name = name; this.birth = birth;
 	}
 
 	// Easy way to generate a v4 UUID:
 	public var id : String = HaxeLow.uuid();
 	public var name : String;
-	public var age : Int;
+	public var birth : Int;
 }
 
 class Main {
@@ -65,7 +65,7 @@ class Main {
 
 		// And you have some useful 'id' methods on the collection
 		// (it still works as an array too)
-		persons.idInsert(new Person("Test", 45)); // returns true
+		persons.idInsert(new Person("Test", 1978)); // returns true
 		
 		// Inserting person with same id will return false
 		persons.idInsert(person); // false
@@ -73,10 +73,10 @@ class Main {
 		var id = person.id;
 
 		var samePerson = persons.idGet(id);
-		samePerson.idUpdate(id, { age: 46 });
+		samePerson.idUpdate(id, { birth: 1979 });
 
 		// idReplace will replace if same id, insert otherwise
-		var anotherPerson = new Person("Test2", 40);
+		var anotherPerson = new Person("Test2", 1980);
 		anotherPerson.id = person.id;
 		persons.idReplace(anotherPerson); // true
 		
@@ -87,6 +87,10 @@ class Main {
 ```
 
 If your id field is named `_id`, use the method `db._idCol(Person)`, or you can use `db.keyCol(Person, idFieldName)` for any field.
+
+## In-memory and browser DB
+
+If you don't pass a filename when creating a `HaxeLow` object, it will be in-memory only. For the browser, if you pass a filename, HaxeLow will save the data in localStorage with the same key as the filename.
 
 ## When to use HaxeLow
 
@@ -118,7 +122,7 @@ However, if you need high performance and scalability more than simplicity, you 
 
 `db.file` - Filename for the current DB.
 
-## Making it work on other targets than js
+## Making it work everywhere
 
 The ways to store the DB varies a lot between platforms, so the only real solution is to let people implement their own disk storage. HaxeLow uses a simple interface for that, `HaxeLow.HaxeLowDisk`:
 
