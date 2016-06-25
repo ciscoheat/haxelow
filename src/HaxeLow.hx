@@ -108,7 +108,7 @@ class HaxeLow
 			new LocalStorageDisk();
 			#elseif nodejs
 			new NodeJsDisk();
-			#else
+			#elseif sys
 			new SysDisk();
 			#end
 		}
