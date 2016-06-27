@@ -46,43 +46,43 @@ This is nice and simple, but wait, there's more! You can use any field in your c
 
 ```haxe
 class Person {
-	public function new(name, birth) {
-		this.name = name; this.birth = birth;
-	}
+    public function new(name, birth) {
+        this.name = name; this.birth = birth;
+    }
 
-	// Easy way to generate a v4 UUID:
-	public var id : String = HaxeLow.uuid();
-	public var name : String;
-	public var birth : Int;
+    // Easy way to generate a v4 UUID:
+    public var id : String = HaxeLow.uuid();
+    public var name : String;
+    public var birth : Int;
 }
 
 class Main {
-	static function main() {
-		var db = new HaxeLow('db.json');
+    static function main() {
+        var db = new HaxeLow('db.json');
 
-		// If your id field is named id, use idCol instead of col:
-		var persons = db.idCol(Person);
+        // If your id field is named id, use idCol instead of col:
+        var persons = db.idCol(Person);
 
-		// And you have some useful 'id' methods on the collection
-		// (it still works as an array too)
-		persons.idInsert(new Person("Test", 1978)); // returns true
-		
-		// Inserting person with same id will return false
-		persons.idInsert(person); // false
-		
-		var id = person.id;
+        var person = new Person("Test", 1978);
 
-		var samePerson = persons.idGet(id);
-		samePerson.idUpdate(id, { birth: 1979 });
+        // And you have some useful 'id' methods on the collection
+        // (it still works as an array too)
+        persons.idInsert(person); // returns true
 
-		// idReplace will replace if same id, insert otherwise
-		var anotherPerson = new Person("Test2", 1980);
-		anotherPerson.id = person.id;
-		persons.idReplace(anotherPerson); // true
-		
-		// Remember to save!
-		db.save();
-	}
+        // Inserting person with same id will return false
+        persons.idInsert(person); // false
+
+        // Update the person entry
+        persons.idUpdate(person.id, { birth: 1979 });
+
+        // idReplace will replace if same id, insert otherwise
+        var anotherPerson = new Person("Test2", 1980);
+        anotherPerson.id = person.id;
+        persons.idReplace(anotherPerson); // true
+
+        // Remember to save!
+        db.save();
+    }
 }
 ```
 
