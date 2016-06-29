@@ -19,14 +19,18 @@ class LocalStorageDisk implements HaxeLowDisk {
 }
 #end
 
-#if nodejs
+#if (js && nodejs) 
 class NodeJsDisk implements HaxeLowDisk {
 	var steno : Dynamic;
 	var fs : Dynamic;
 	
 	public function new() {
 		this.steno = js.Lib.require('steno');
-		this.fs = js.Lib.require('graceful-fs');
+		try {
+			this.fs = js.Lib.require('graceful-fs');
+		} catch (e : Dynamic) {
+			this.fs = js.Lib.require('steno/node_modules/graceful-fs');
+		}
 		if (this.steno == null) throw "Node.js error: package 'steno' not found. Please install with 'npm install --save steno'";
 	}
 
@@ -106,7 +110,7 @@ class HaxeLow
 			this.disk =
 			#if (js && !nodejs)
 			new LocalStorageDisk();
-			#elseif nodejs
+			#elseif (js && nodejs)
 			new NodeJsDisk();
 			#elseif sys
 			new SysDisk();

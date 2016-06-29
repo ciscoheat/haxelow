@@ -150,4 +150,4 @@ class Main {
 
 HaxeLow uses [TJSON](https://github.com/martamius/TJSON), the tolerant JSON parser for Haxe.
 
-Thanks to the lowdb authors for the idea!
+Thanks to Frank Endres for some patches, and of course the lowdb authors for the whole idea!
